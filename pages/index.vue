@@ -1,5 +1,4 @@
 <template>
-
   <Head>
     <Title>南山有壶酒</Title>
     <Meta name="author" content="southernMD">
@@ -13,10 +12,10 @@
   </Head>
   <NuxtLayout name="maintemplate">
     <template #default>
-      <el-scrollbar>
+      <el-scrollbar ref="scrollbarRef" @scroll="barScroll" >
         <NuxtLayout name="base-look">
           <template #right>
-            1234
+            <LazyNuxtPage></LazyNuxtPage>
           </template>
         </NuxtLayout>
       </el-scrollbar>
@@ -25,7 +24,16 @@
 </template>
 
 <script setup lang="ts">
-import { } from 'vue'
+import type { ScrollbarInstance } from 'element-plus';
+const scrollbarRef = ref<ScrollbarInstance | null>(null)
+const AppPinia = useApp() 
+watch(()=>scrollbarRef,()=>{
+  AppPinia.scrollbarRef = scrollbarRef
+},{immediate:true,deep:true})
+
+const barScroll = (scrollObj: any) => {
+    AppPinia.scrollbarVal = scrollObj.scrollTop
+}
 </script>
 
 

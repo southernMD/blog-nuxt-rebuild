@@ -3,6 +3,17 @@ import path from 'path';
 import ElementPlus from 'unplugin-element-plus/vite'
 
 export default defineNuxtConfig({
+  router: {
+    options: {
+      strict: true,
+    },
+  },
+  runtimeConfig:{
+    public:{
+      // baseUrl: "https://www.southernapi.top",
+      baseUrl: "http://localhost:3102",
+    }
+  },
   modules: [
     '@pinia/nuxt',
     'pinia-plugin-persistedstate/nuxt',
@@ -10,7 +21,7 @@ export default defineNuxtConfig({
     '@element-plus/nuxt',
     '@nuxt/image',
   ],
-  css: ['@/assets/base.css', 'element-plus/dist/index.css'],
+  css: ['~/assets/base.css', 'element-plus/dist/index.css'],
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   vite: {
@@ -22,13 +33,16 @@ export default defineNuxtConfig({
           // 这样就能全局使用 src/assets/styles/mixins.less 定义的 变量
           additionalData: `@import "${path.resolve('./assets/mixins.less')}";`
         },
+        css:{
+
+        }
       }
     },
     plugins: [
       //@ts-ignore
       ElementPlus(),
     ],
-    envDir: '~/env', // 指定env文件夹
+    // envDir: '~/env', // 指定env文件夹
     build: {
       minify: "terser",
       terserOptions: {
@@ -38,6 +52,11 @@ export default defineNuxtConfig({
           drop_debugger: true,
         },
       },
-    }
+    },
+    server: {
+      hmr: {
+        overlay: false,
+      },
+    },
   },
 })

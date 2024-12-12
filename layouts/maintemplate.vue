@@ -10,7 +10,7 @@
         <Transition name="title-way">
             <div class="title" v-show="scrollbarVal < 100">
                 <div class="title-main">
-                    <div class="search" @click="showSearchDrawer">
+                    <div class="search" @click="AppPinia.changeSearchDrawerState(true)">
                         <i class="iconfont icon-search"></i>
                     </div>
                     <div class="name" @click="go('首页')">
@@ -18,64 +18,37 @@
                     </div>
                     <div class="nav-list">
                         <div class="nav" v-for="(val, index) in navArr" :key="val" @click="go(val)"
-                            :class="{ 'active': val == activeBlock }">
+                            :class="{ 'active': val == AppPinia.activeBlock }">
                             <i class="iconfont" :class="navicons[index]"></i>
                             <span>{{ val }}</span>
                         </div>
                     </div>
-                    <div class="menu" @click="showDrawer">
+                    <div class="menu" @click="drawerFlag = true">
                         <i class="iconfont icon-caidan"></i>
                     </div>
-                    <Teleport to="body">
-                        <el-drawer v-model="drawerFlag" :append-to-body="true" :show-close="false" :with-header="false"
-                            size="70%">
-                            <div class="nav-list-phone">
-                                <div class="nav" v-for="(val, index) in navArr" :key="val" @click="go(val)"
-                                    :class="{ 'active': val == activeBlock }">
-                                    <span><i class="iconfont" :class="navicons[index]"></i>{{ val }}</span>
-                                </div>
-                            </div>
-                        </el-drawer>
-                        <el-drawer v-if="!$route.path.includes('years')" v-model="SearchDrawerFlag"
-                            :append-to-body="true" :show-close="false" :with-header="false" direction="ltr" size="70%"
-                            destroy-on-close>
-                            <el-scrollbar>
-                                <div id="left-drawer">
-                                    <my-search-input></my-search-input>
-                                    <MyMessage v-show="flag == 0"></MyMessage>
-                                    <TagList v-show="flag == 1"></TagList>
-                                    <Directory v-show="flag == 2"></Directory>
-                                    <div class="option">
-                                        <div v-for="(val, index) in tagslen" @click="change(index)"
-                                            :class="{ active: flag == index }" :key="val">{{ tags[index] }}</div>
-                                    </div>
-                                </div>
-                            </el-scrollbar>
-                        </el-drawer>
-                    </Teleport>
                 </div>
             </div>
         </Transition>
         <slot></slot>
         <div class="float-option" :class="{
-            'float-option-l': optionDirectionFlag,
+            'float-option-l': AppPinia.optionDirectionFlag,
             'float-option-active': optionActiveFlag,
-            'hide-option': !hideFlag && !optionDirectionFlag,
-            'hide-option-l': !hideFlag && optionDirectionFlag,
+            'hide-option': !AppPinia.hideFlag && !AppPinia.optionDirectionFlag,
+            'hide-option-l': !AppPinia.hideFlag && AppPinia.optionDirectionFlag,
         }">
             <Block :height="'30px'" class="change-direction" @block="handleChangeDirection"
                 :class="{ 'hide': optionActiveFlag }">
                 <template #icon>
                     <el-icon>
-                        <CaretLeft v-if="!optionDirectionFlag" />
+                        <CaretLeft v-if="!AppPinia.optionDirectionFlag" />
                         <CaretRight v-else />
                     </el-icon>
                 </template>
                 <template #message>
-                    <div class="message">{{ !optionDirectionFlag ? '移至左侧' : '移至右侧' }}</div>
+                    <div class="message">{{ !AppPinia.optionDirectionFlag ? '移至左侧' : '移至右侧' }}</div>
                 </template>
             </Block>
-            <Block class="top" @block="goToTop">
+            <Block class="top" @block="toTop">
                 <template #icon>
                     <el-icon>
                         <Top />
@@ -88,15 +61,16 @@
             <Block class="skin" @block="handleChangeSkin">
                 <template #icon>
                     <el-icon>
-                        <Sunny v-show="theme == 'dark'" />
-                        <Moon v-show="theme != 'dark'" />
+                        <Sunny v-show="AppPinia.theme == 'dark'" />
+                        <Moon v-show="AppPinia.theme != 'dark'" />
                     </el-icon>
                 </template>
                 <template #message>
-                    <div class="message">{{ theme == 'dark' ? '夜间模式' : '日间模式' }}</div>
+                    <div class="message">{{ AppPinia.theme == 'dark' ? '夜间模式' : '日间模式' }}</div>
                 </template>
             </Block>
-            <Block class="skin" @block="handleChangeMusic">
+            <Block class="skin">
+            <!-- <Block class="skin" @block="handleChangeMusic"> -->
                 <template #icon>
                     <i v-show="music" class="iconfont icon-yinyue"></i>
                     <i v-show="!music" class="iconfont icon-yinyueguan"></i>
@@ -105,7 +79,7 @@
                     <div class="message">{{ music ? '关闭音乐' : '开启音乐' }}</div>
                 </template>
             </Block>
-            <Block class="hide-btn" @block="handleHideOption">
+            <Block class="hide-btn" @block="AppPinia.hideFlag = !AppPinia.hideFlag">
                 <template #icon>
                     <el-icon>
                         <Hide />
@@ -117,10 +91,10 @@
             </Block>
         </div>
         <transition name="sm-option">
-            <div v-show="!hideFlag" class="float-option-small" :class="{ 'float-option-small-l': optionDirectionFlag }"
-                @click="handleHideOption">
+            <div v-show="!AppPinia.hideFlag" class="float-option-small" :class="{ 'float-option-small-l': AppPinia.optionDirectionFlag }"
+                @click="AppPinia.hideFlag = !AppPinia.hideFlag">
                 <el-icon>
-                    <ArrowLeftBold v-if="!optionDirectionFlag" />
+                    <ArrowLeftBold v-if="!AppPinia.optionDirectionFlag" />
                     <ArrowRightBold v-else />
                 </el-icon>
             </div>
@@ -130,6 +104,17 @@
                 <span>a</span>
             </div>
         </transition>
+        <Teleport to="body">
+            <el-drawer v-model="drawerFlag" :append-to-body="true" :show-close="false" :with-header="false"
+                size="70%">
+                <div class="nav-list-phone">
+                    <div class="nav" v-for="(val, index) in navArr" :key="val" @click="go(val)"
+                        :class="{ 'active': val == AppPinia.activeBlock }">
+                        <span><i class="iconfont" :class="navicons[index]"></i>{{ val }}</span>
+                    </div>
+                </div>
+            </el-drawer>
+        </Teleport>
     </div>
 </template>
 
@@ -139,50 +124,17 @@ import { useRouter, useRoute } from 'vue-router';
 import { ElDrawer, ElButton, ElIcon, ElInput, ElScrollbar, ElMessageBox, ElMessage } from 'element-plus'
 import { ArrowLeftBold, ArrowRightBold, Sunny, Moon, Hide, CaretLeft, CaretRight, Top } from '@element-plus/icons-vue'
 import { useApp } from '@/stores/index'
-const $router = useRouter()
-const $route = useRoute()
 const AppPinia = useApp()
 const navArr = ['首页', '文章', '留言板', '十年', '关于', '音乐'];
 const navicons = ['icon-shouye', 'icon-wenzhang', 'icon-liuyan', 'icon-zhiwu', 'icon-guanyu', 'icon-yinyue']
-let theme = toRef(AppPinia, 'theme')
 let music = toRef(AppPinia, 'music')
 let drawerFlag = ref(false)
 let scrollbarVal = toRef(AppPinia, 'scrollbarVal')
 
-const MyMessage = resolveComponent('MyMessage')
-const TagList = resolveComponent('TagList')
-// const Directory = resolveComponent('Directory')
-// const comps = shallowRef([MyMessage, TagList, Directory])
-const comps = shallowRef([MyMessage, TagList])
-const tags = ref(['站点信息', '标签云', '目录'])
-let tagslen = ref(2)
-let flag = ref(0)
-const change = (num: number) => {
-    flag.value = num;
-}
-const directory = toRef(AppPinia, 'directory')
-watch(directory, () => {
-    if (directory.value == -1) {
-        console.log('directory是-1');
-        flag.value = 0
-        tagslen.value = 2
-    } else {
-        console.log('directory是其他');
-        flag.value = 2
-        tagslen.value = 3
-    }
-}, { immediate: true })
-
-
-let activeBlock = toRef(AppPinia, 'activeBlock');
-const ArticlesListYear = toRef(AppPinia, 'ArticlesListYear') as unknown as Ref<Article[]>
-const ArticlesList = toRef(AppPinia, 'ArticlesList') as unknown as Ref<Article[]>
-const total = toRef(AppPinia, 'totalPages')
 const go = async (path: string) => {
     let p = ''
     drawerFlag.value = false
-    console.log(path);
-    activeBlock.value = path
+    AppPinia.activeBlock = path
     switch (path) {
         case '首页':
             p = '/'
@@ -206,88 +158,61 @@ const go = async (path: string) => {
             p = '/music'
             break;
     }
-    if ($route.path.includes(p) && (p == '/years' || p == '/articles')) {
-        const flag = p == '/years' ? 1 : 0
-        const HttpRequestArticlesList = await useGetArticlesList(1, 5, '', flag) as ArticleListHttp<ArticleObj[]>
-        if (flag == 1) {
-            ArticlesListYear.value = HttpRequestArticlesList.result as ArticleObj[]
-        } else {
-            ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
-        }
-        total.value = HttpRequestArticlesList.totalPages
-    }
-    $router.push({
-        path: p
-    })
+    navigateTo(p)
 }
+
 let windowWidth = toRef(AppPinia, 'windowWidth')
 const getWindowWidth = () => {
     windowWidth.value = document.documentElement.clientWidth
+    console.log(windowWidth.value);
 }
-
-onMounted(() => {
+if(import.meta.client){
     getWindowWidth()
     window.addEventListener('resize', getWindowWidth)
-})
+}
 
 watch(windowWidth, () => {
     if (windowWidth.value >= 750) {
         drawerFlag.value = false
     }
     if (windowWidth.value >= 915) {
-        SearchDrawerFlag.value = false
+        AppPinia.changeSearchDrawerState(false)
     }
 })
 
-const showDrawer = () => {
-    console.log('123');
-    drawerFlag.value = true
-    console.log(drawerFlag.value);
-}
 
-const SearchDrawerFlag = toRef(AppPinia, 'SearchDrawerFlag')
-const showSearchDrawer = () => {
-    SearchDrawerFlag.value = true
-}
-
-
-let optionDirectionFlag = toRef(AppPinia, 'optionDirectionFlag')
-
-let orderChange = toRef(AppPinia, 'orderChange')
 let optionActiveFlag = ref(false)
 const handleChangeDirection = () => {
     optionActiveFlag.value = true
     let time2 = setTimeout(() => {
-        orderChange.value = !orderChange.value
+        AppPinia.orderChange = !AppPinia.orderChange
         clearTimeout(time2)
     }, 200)
     let time = setTimeout(() => {
-        optionDirectionFlag.value = !optionDirectionFlag.value
+        AppPinia.optionDirectionFlag = !AppPinia.optionDirectionFlag
         clearTimeout(time)
         optionActiveFlag.value = false
     }, 400)
 }
 
-onMounted(() => {
-    useSkin(theme.value);
-})
+if(import.meta.client){
+    useSkin(AppPinia.theme);
+}
 
 const handleChangeSkin = () => {
-    if (theme.value == 'light') {
-        theme.value = 'dark'
+    if (AppPinia.theme == 'light') {
+        AppPinia.theme = 'dark'
     } else {
-        theme.value = 'light'
+        AppPinia.theme = 'light'
     }
-    useSkin(theme.value);
+    useSkin(AppPinia.theme);
 }
 
-let hideFlag = toRef(AppPinia, 'hideFlag')
-const handleHideOption = () => {
-    hideFlag.value = !hideFlag.value
-}
-
-const goToTop = () => {
-    AppPinia.toTopFlag = true
+const toTop = () =>{
+    AppPinia.scrollbarRef.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+    })
 }
 
 const admit = () => {

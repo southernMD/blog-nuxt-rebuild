@@ -6,7 +6,7 @@
                 <slot name="left"></slot>
                 <slot name="option"></slot>
             </div>
-            <div :class="{'lrc-none':true,'lrc':scrollbarVal > 100}" >
+            <!-- <div :class="{'lrc-none':true,'lrc':scrollbarVal > 100}" >
                 <div class="two-line" v-show="!ifOneLine">
                     <div class="lrc-one">{{ twoLineSongLrc }}</div>
                     <div class="lrc-translate">{{ twoLineSongLrcTra }}</div>
@@ -14,7 +14,7 @@
                 <div class="one-line" v-show="ifOneLine">
                     <div class="lrc-two">{{oneLineSongLrc}}</div>
                 </div>
-            </div>
+            </div> -->
         </div>
         <el-drawer v-if="$route.path.includes('years')" direction="ltr" v-model="SearchDrawerFlag" :append-to-body="true"
             :show-close="false" :with-header="false" size="70%">
@@ -43,42 +43,35 @@
 
 <script setup lang="ts">
 import { useApp,useOneArticle } from '@/stores'
+import type { Article } from '~/types/article';
 const AppPinia = useApp()
 const SearchDrawerFlag = toRef(AppPinia, 'SearchDrawerFlag')
 let scrollbarVal = toRef(AppPinia, 'scrollbarVal')
 let searchVal = ref('')
-const oneLineSongLrc = toRef(AppPinia,'oneLineSongLrc')
-const twoLineSongLrc = toRef(AppPinia,'twoLineSongLrc')
-const twoLineSongLrcTra = toRef(AppPinia,'twoLineSongLrcTra')
-const ifOneLine = toRef(AppPinia,'ifOneLine') //ref(true)
+// const oneLineSongLrc = toRef(AppPinia,'oneLineSongLrc')
+// const twoLineSongLrc = toRef(AppPinia,'twoLineSongLrc')
+// const twoLineSongLrcTra = toRef(AppPinia,'twoLineSongLrcTra')
+// const ifOneLine = toRef(AppPinia,'ifOneLine') //ref(true)
 
-const nowPage = toRef(AppPinia,'nowPage')
-const ArticlesList  = toRef(AppPinia,'ArticlesListYear') as unknown as Ref<ArticleObj[]>
+const ArticlesList  = toRef(AppPinia,'ArticlesListYear') as unknown as Ref<Article[]>
 const $route = useRoute()
 const OneArticle = useOneArticle()
-const $router = useRouter()
 const total = toRef(AppPinia,'totalPages')
 const taglist = toRef(OneArticle,'tags_list_years')
 
-watch(nowPage, async () => {
-  if(!$route.query.searchType){
-    const HttpRequestArticlesList = await useGetArticlesList(nowPage.value, 5, '', 1) as ArticleListHttp<ArticleObj[]>
-    ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
-  }
-})
-const searchByTag = async(key:string)=>{
-    nowPage.value = 1
-    const HttpRequestArticlesList = await useGetArticlesList(1,5,key,2) as ArticleListHttp<ArticleObj[]>
-    ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
-    total.value = HttpRequestArticlesList.totalPages
-    $router.push({
-        path:'/years',
-        query:{
-            searchType:'tag',
-            searchKey:key
-        }
-    })
-}
+// const searchByTag = async(key:string)=>{
+//     nowPage.value = 1
+//     const HttpRequestArticlesList = await useGetArticlesList(1,5,key,2) as ArticleListHttp<Article[]>
+//     ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
+//     total.value = HttpRequestArticlesList.totalPages
+//     $router.push({
+//         path:'/years',
+//         query:{
+//             searchType:'tag',
+//             searchKey:key
+//         }
+//     })
+// }
 </script>
 
 <style scoped lang="less">

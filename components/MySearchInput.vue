@@ -8,7 +8,6 @@
 </template>
 
 <script setup lang="ts">
-import { Ref } from 'vue';
 import { ElInput } from 'element-plus';
 import { useApp,useOneArticle } from '~~/stores';
 let searchVal = ref('')
@@ -20,14 +19,8 @@ const ArticlesList = toRef(AppPinia,'ArticlesList') as unknown as Ref<ArticleObj
 const ArticlesListYear  = toRef(AppPinia,'ArticlesListYear') as unknown as Ref<ArticleObj[]>
 const $route = useRoute()
 const $router = useRouter()
-// const searchFlag = toRef(AppPinia,'searchFlag')
-// const searchKey = toRef(AppPinia,'searchKey')
-// const searchType = toRef(AppPinia,'searchType')
 
 const goSearch = async() => {
-    // searchFlag.value = true
-    // searchKey.value = searchVal.value
-    // searchType.value = 'key'
     if(searchVal.value.length === 0)return
     nowPage.value = 1
     if($route.path.includes('years')){

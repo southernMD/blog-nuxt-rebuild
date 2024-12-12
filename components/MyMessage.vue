@@ -1,6 +1,6 @@
 <template>
     <div class="MyMessage">
-        <NuxtImg  format="webp" :src="AppPinia?.imgObj?.result?.[0]" height="200" width="300"></NuxtImg>
+        <NuxtImg v-if="imageSrc" format="webp" :src="imageSrc" height="200" width="300"></NuxtImg>
         <img class="header" draggable="false"
             src="https://gravatar.loli.net/avatar/e6b6cb8333565fd6cff15e3c8ba8ade1?s=80" alt="">
         <h1 class="name">南山有壶酒</h1>
@@ -8,7 +8,7 @@
             <span>{{ AppPinia.yiyan }}</span>
         </div>
         <div class="nav-list">
-            <div class="nav" v-for="(val, index) in navMessage" :key="val">
+            <div class="nav" v-for="(val, index) in AppPinia.navMessage" :key="val">
                 <div class="nav-item">
                     <div class="title">{{ navTitle[index] }}</div>
                     <div class="number">{{ val }}</div>
@@ -33,18 +33,17 @@
 </template>
 
 <script setup lang="ts">
-import { Ref } from 'vue'
-import { useOneArticle,useApp } from '~~/stores';
-import { ElImage, ElAvatar, ElSkeleton } from 'element-plus';
-let imgSrc = ref() as Ref<ResOptions<any>>
+import { useApp } from '~~/stores';
 const navTitle = ['文章', '分类', '标签']
 const AppPinia = useApp()
-const flag = useCookie('flag')
-// flag.value = flag.value || 'true'
-console.log(flag.value,52)
-const navMessage:any = toRef(AppPinia,'navMessage')
-console.log(AppPinia.yiyan)
-console.log(AppPinia.result,'114514')
+const imageSrc = ref<string | null>(null);
+
+    AppPinia.imgObj = await useGetImage({ restart: false });
+    imageSrc.value = AppPinia.imgObj?.result?.[0];
+    AppPinia.result = (await useGetBaseMessage())!.result!;
+    AppPinia.yiyan = await useGetYiYan() as string;
+    let { base_message, tags_list, tags_list_years } = AppPinia.result as { base_message: { tags_number: number, gather_number: number, article_number: number }, tags_list: string[], tags_list_years: string[] };
+    AppPinia.navMessage = [base_message.article_number, base_message.gather_number, base_message.tags_number];
 // if(!flag.value){
 //     AppPinia.imgObj = await useGetImage()
 //     AppPinia.result = (await useGetBaseMessage())!.result!

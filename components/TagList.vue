@@ -14,7 +14,6 @@
 </template>
 
 <script setup lang="ts">
-import { Ref } from 'vue'
 import _  from 'lodash'
 import { useOneArticle,useApp } from '~~/stores';
 import { ElTag, ElScrollbar } from 'element-plus';

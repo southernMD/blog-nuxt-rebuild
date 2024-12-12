@@ -1,3 +1,4 @@
+import type { ScrollbarInstance } from "element-plus";
 import { defineStore } from "pinia";
 export const useApp = defineStore("app", {
   state: () => {
@@ -7,8 +8,6 @@ export const useApp = defineStore("app", {
       optionDirectionFlag: false,
       hideFlag: true,
       orderChange: false,
-      toTopFlag: false,
-      toTopFlagim: false,
       scrollbarVal: 0,
       activeBlock: '首页',
       directory: -1,
@@ -27,7 +26,7 @@ export const useApp = defineStore("app", {
       imgObj: {},
       result: {},
       yiyan: {},
-      navMessage: [],
+      navMessage: new Array(),
       music: true,
       musicList: <{
         id: number
@@ -52,21 +51,18 @@ export const useApp = defineStore("app", {
       songTime: 0,
       songDuration: 0,
       next: 0,
-      chagnePlay: true
+      chagnePlay: true,
+      scrollbarRef: null as ScrollbarInstance | null
     };
   },
   actions: {
-    // async reqMusic(): Promise<any> {
-    //   let result: any[] = await useSongList()
-    //   result.sort((a, b) => {
-    //     return a.order - b.order
-    //   })
-    //   this.musicList = result
-    // },
+    changeSearchDrawerState(state:boolean = false) {
+      this.SearchDrawerFlag = state
+    },
   },
   persist: [{
     pick: ['theme', 'optionDirectionFlag', 'hideFlag', 'orderChange',
-      'ArticlesList', 'ArticlesListYear', 'imgObj', 'result', 'yiyan', 'navMessage', 'music', 'playIndex'],
+      'ArticlesList', 'ArticlesListYear', 'imgObj', 'result', 'yiyan', 'navMessage', 'music', 'playIndex',"nowPage"]
   }]
 });
 

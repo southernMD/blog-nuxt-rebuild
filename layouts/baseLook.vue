@@ -3,7 +3,9 @@
         <NuxtLayout name="container">
             <template #left>
                 <div v-if="!$route.path.includes('years')">
-                    <Component :is="comps[flag]"></Component>
+                    <KeepAlive>
+                        <Component :is="comps[flag]"></Component>
+                    </KeepAlive>
                 </div>
                 <div v-else>
                     <div class="title">分类</div>
@@ -19,9 +21,9 @@
                     </el-scrollbar>
                 </div>
             </template>
-            <template #option v-if="!$route.path.includes('years')">
+            <template #option>
                 <div class="option">
-                    <div v-for="(val, index) in tagslen" @click="change(index)" :class="{ active: flag == index }"
+                    <div v-for="(val, index) in tagslen" @click=" flag = index" :class="{ active: flag == index }"
                         :key="index">
                         {{ tags[index] }}
                     </div>
@@ -31,29 +33,40 @@
                 <slot name="right"></slot>
             </template>
         </NuxtLayout>
+        <el-drawer v-model="AppPinia.SearchDrawerFlag" :append-to-body="true"
+            :show-close="false" :with-header="false" direction="ltr" size="70%" destroy-on-close>
+            <el-scrollbar>
+                <div id="left-drawer">
+                    <my-search-input></my-search-input>
+                    <KeepAlive>
+                        <Component :is="comps[flag]"></Component>
+                    </KeepAlive>
+                    <div class="option">
+                        <div v-for="(val, index) in tagslen" @click="flag = index"
+                            :class="{ active: flag == index }" :key="val">{{ tags[index] }}</div>
+                    </div>
+                </div>
+            </el-scrollbar>
+        </el-drawer>
     </div>
 </template>
 
 <script setup lang="ts">
 import { useApp, useOneArticle } from '@/stores'
-import { type Ref } from 'vue'
 
 const OneArticle = useOneArticle()
 const AppPinia = useApp()
-let scrollbarVal = toRef(AppPinia, 'scrollbarVal')
-const MyMessage = resolveComponent('MyMessage')
-const TagList = resolveComponent('TagList')
-const taglist = toRef(OneArticle, 'tags_list_years')
-const $route = useRoute()
 
-const Directory = resolveComponent('Directory')
-const comps = shallowRef([MyMessage, TagList, Directory])
+const comps = shallowRef([
+    resolveComponent('MyMessage'), 
+    resolveComponent('TagList'), 
+    resolveComponent('Directory')
+])
 const tags = ref(['站点信息', '标签云', '目录'])
 const tagslen = ref(2)
+const taglist = toRef(OneArticle, 'tags_list_years')
+const $route = useRoute()
 let flag = ref(0)
-const change = (num: number) => {
-    flag.value = num;
-}
 
 const directory = toRef(AppPinia, 'directory')
 watch(directory, () => {
@@ -67,23 +80,22 @@ watch(directory, () => {
 }, { immediate: true })
 
 const nowPage = toRef(AppPinia, 'nowPage')
-const ArticlesList = toRef(AppPinia, 'ArticlesListYear') as unknown as Ref<ArticleObj[]>
 const total = toRef(AppPinia, 'totalPages')
 const $router = useRouter()
 
-const searchByTag = async (key: string) => {
-    nowPage.value = 1
-    const HttpRequestArticlesList = await useGetArticlesList(1, 5, key, 2) as ArticleListHttp<ArticleObj[]>
-    ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
-    total.value = HttpRequestArticlesList.totalPages
-    $router.push({
-        path: '/years',
-        query: {
-            searchType: 'tag',
-            searchKey: key
-        }
-    })
-}
+// const searchByTag = async (key: string) => {
+//     nowPage.value = 1
+//     const HttpRequestArticlesList = await useGetArticlesList(1, 5, key, 2) as ArticleListHttp<ArticleObj[]>
+//     ArticlesList = HttpRequestArticlesList.result as ArticleObj[]
+//     total.value = HttpRequestArticlesList.totalPages
+//     $router.push({
+//         path: '/years',
+//         query: {
+//             searchType: 'tag',
+//             searchKey: key
+//         }
+//     })
+// }
 </script>
 
 <style scoped lang="less">
@@ -145,7 +157,6 @@ const searchByTag = async (key: string) => {
     li {
         width: 100%;
         user-select: none;
-        // background-color: red;
         height: 40px;
         line-height: 40px;
 

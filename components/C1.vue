@@ -41,7 +41,7 @@
 
 <script setup lang="ts">
 import { ElAvatar, ElDivider } from 'element-plus';
-import { useApp,useOneArticle } from '~~/stores';
+import { useApp } from '~~/stores';
 import {nanoid} from 'nanoid'
 import gravatar from 'gravatar'
 const AppPinia = useApp()

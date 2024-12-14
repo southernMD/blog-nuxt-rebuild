@@ -16,7 +16,9 @@
 </template>
 
 <script setup lang="ts">
-const list = ref<any>([])
+import type { Comment } from '~/types/article';
+
+const list = ref<Comment[]>([])
 
 const { data: boardComment} = useAsyncData('boardComment', async () => {
     const HttpRequestArticlesList = (await useGetArticleComment(-1))

@@ -37,13 +37,14 @@ import { useApp } from '~~/stores';
 const navTitle = ['文章', '分类', '标签']
 const AppPinia = useApp()
 const imageSrc = ref<string | null>(null);
-
-    AppPinia.imgObj = await useGetImage({ restart: false });
-    imageSrc.value = AppPinia.imgObj?.result?.[0];
-    AppPinia.result = (await useGetBaseMessage())!.result!;
-    AppPinia.yiyan = await useGetYiYan() as string;
-    let { base_message, tags_list, tags_list_years } = AppPinia.result as { base_message: { tags_number: number, gather_number: number, article_number: number }, tags_list: string[], tags_list_years: string[] };
-    AppPinia.navMessage = [base_message.article_number, base_message.gather_number, base_message.tags_number];
+AppPinia.imgObj = await useGetImage({ restart: false });
+imageSrc.value = AppPinia.imgObj?.result?.[0];
+const AppResult = (await useGetBaseMessage())!.result!;
+AppPinia.yiyan = await useGetYiYan() as string;
+let { base_message, tags_list, tags_list_years } = AppResult as { base_message: { tags_number: number, gather_number: number, article_number: number }, tags_list: string[], tags_list_years: string[] };
+AppPinia.navMessage = [base_message.article_number, base_message.gather_number, base_message.tags_number];
+AppPinia.tags_list = tags_list as any
+AppPinia.tags_list_years = tags_list_years as any
 // if(!flag.value){
 //     AppPinia.imgObj = await useGetImage()
 //     AppPinia.result = (await useGetBaseMessage())!.result!

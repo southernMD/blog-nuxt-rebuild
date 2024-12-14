@@ -29,15 +29,18 @@ const total = ref(0)
 // const nowPage = ref(1)
 const $route = useRoute()
 const helpMessage = ref("加载中...")
+const searchKey = ref($route.query.searchKey?$route.query.searchKey:'')
+watch(()=>$route.query.searchKey,(newVal)=>{
+    searchKey.value = newVal ? newVal : ''
+    nowPage.value = 1
+})
 
 const { data: articlesData} = useAsyncData('articlesList', async () => {
-    if (!$route?.query?.searchType) {
-        const HttpRequestArticlesList = await useGetArticlesList(nowPage.value, 5, '', 0) as ArticleListHttp<Article[]>;
-
-        return HttpRequestArticlesList as getArticleListRes
-    }
+    let flag = $route?.query?.searchType === 'tag' ? 2:0
+    const HttpRequestArticlesList = await useGetArticlesList(nowPage.value, 5,searchKey.value.toString(), flag) as ArticleListHttp<Article[]>;
+    return HttpRequestArticlesList as getArticleListRes
 }, {
-    watch: [nowPage, $route.query],
+    watch: [nowPage, searchKey],
 });
 
 watch(articlesData, (newData) => {
@@ -57,6 +60,7 @@ watch(nowPage, () => {
 setTimeout(() => {
     helpMessage.value = "暂无内容"
 }, 10000);
+
 </script>
 
 <style scoped lang="less">

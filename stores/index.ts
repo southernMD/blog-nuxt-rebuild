@@ -52,7 +52,9 @@ export const useApp = defineStore("app", {
       songDuration: 0,
       next: 0,
       chagnePlay: true,
-      scrollbarRef: null as ScrollbarInstance | null
+      scrollbarRef: null as ScrollbarInstance | null,
+      tags_list:[],
+      tags_list_years:[]
     };
   },
   actions: {
@@ -66,25 +68,23 @@ export const useApp = defineStore("app", {
   }]
 });
 
-export const useOneArticle = defineStore("oneArticle", {
-  state: () => {
-    return {
-      ss: {
-        id: 0,
-        article: '',
-        msg: {},
-        Text: '',
-        tags: [],
-        list: [],
-      },
-      tags_list: [],
-      tags_list_years: []
-    }
-  },
-  actions: {
+// export const useOneArticle = defineStore("oneArticle", {
+//   state: () => {
+//     return {
+//       ss: {
+//         id: 0,
+//         article: '',
+//         msg: {},
+//         Text: '',
+//         tags: [],
+//         list: [],
+//       },
+//     }
+//   },
+//   actions: {
 
-  },
-  persist: [{
-    pick: ['ss', 'tags_list', 'tags_list_years'],
-  }]
-})
+//   },
+//   persist: [{
+//     pick: ['ss'],
+//   }]
+// })

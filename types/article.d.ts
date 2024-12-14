@@ -19,6 +19,23 @@ interface Article{
     comments:number
     click:number
 }
+
+interface Comment{
+    id: number,
+    master: 0 | 1,
+    time: string,
+    timestamp: number,
+    nickname: string,
+    email: string,
+    _host: string,
+    _text: string,
+    article_id:number,
+    parent_id: null | number,
+    location: string,
+    browser: string,
+    OS:string
+}
 interface ArticleListHttp<T> extends ResOptions<T>{
     totalPages:number
 }
+

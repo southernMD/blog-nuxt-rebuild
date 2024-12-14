@@ -9,54 +9,46 @@
 
 <script setup lang="ts">
 import { ElInput } from 'element-plus';
-import { useApp,useOneArticle } from '~~/stores';
+import { useApp } from '~~/stores';
 let searchVal = ref('')
-const OneArticle = useOneArticle()
 const AppPinia = useApp()
-const totalPages = toRef(AppPinia,'totalPages')
 const nowPage = toRef(AppPinia,'nowPage')
-const ArticlesList = toRef(AppPinia,'ArticlesList') as unknown as Ref<ArticleObj[]>
-const ArticlesListYear  = toRef(AppPinia,'ArticlesListYear') as unknown as Ref<ArticleObj[]>
 const $route = useRoute()
-const $router = useRouter()
-
 const goSearch = async() => {
-    if(searchVal.value.length === 0)return
+    searchVal.value = searchVal.value.trim()
+    if(searchVal.value.length === 0){
+        if($route.path.includes('years')){
+            navigateTo({path:'/years',query:undefined})
+            return;
+        }else if($route.path.includes('articles')){
+            navigateTo({path:'/articles',query:undefined})
+            return;
+        }else{
+            return;
+        }
+    }
     nowPage.value = 1
+    AppPinia.SearchDrawerFlag = false
     if($route.path.includes('years')){
-        const HttpRequestArticlesList = await useGetArticlesList(1,5,searchVal.value,1) as ArticleListHttp<ArticleObj[]>
-        ArticlesListYear.value = HttpRequestArticlesList.result as ArticleObj[]
-        totalPages.value = +HttpRequestArticlesList.totalPages
-        $router.push({
-            path:'years',
+        navigateTo({
+            path:'/years',
             query:{
                 searchType:'key',
-                searchKey:searchVal.value
+                searchKey:searchVal.value,
             }
         })
     }else{
-        const HttpRequestArticlesList = await useGetArticlesList(1,5,searchVal.value,0) as ArticleListHttp<ArticleObj[]>
-        ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
-        totalPages.value = +HttpRequestArticlesList.totalPages
-        $router.push({
+        navigateTo({
             path:'/articles',
             query:{
                 searchType:'key',
-                searchKey:searchVal.value
+                searchKey:searchVal.value,
             }
         })
     }
     searchVal.value = ''
 }
 
-
-watch(nowPage,async()=>{
-    const flag = $route.path.includes('years')?1:0
-    if($route.query.searchType == 'key'){
-        const HttpRequestArticlesList = await useGetArticlesList(nowPage.value, 5,String($route.query.searchKey),flag) as ArticleListHttp<ArticleObj[]>
-        ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
-    }
-})
 </script>
 
 <style scoped lang="less">

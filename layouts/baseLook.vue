@@ -2,19 +2,19 @@
     <div style="height:100vh;">
         <NuxtLayout name="container">
             <template #left>
-                <div v-if="!$route.path.includes('years')">
-                    <KeepAlive>
+                <div v-show="AppPinia.activeBlock != '十年'">
+                    <KeepAlive :include='["MyMessage", "TagList"]'>
                         <Component :is="comps[flag]"></Component>
                     </KeepAlive>
                 </div>
-                <div v-else>
+                <div v-show="AppPinia.activeBlock == '十年'">
                     <div class="title">分类</div>
                     <el-scrollbar>
                         <ul class="list">
-                            <li v-for="val in taglist" @click="searchByTag(val)">
+                            <li v-for="val in AppPinia.tags_list_years" @click="searchByTag(val)">
                                 <span>{{ val }} </span>
                             </li>
-                            <li v-show="taglist.length == 0">
+                            <li v-show="AppPinia.tags_list_years.length == 0">
                                 <span style="cursor: default; ">暂无内容</span>
                             </li>
                         </ul>
@@ -22,7 +22,7 @@
                 </div>
             </template>
             <template #option>
-                <div class="option">
+                <div class="option" v-show="AppPinia.activeBlock != '十年'">
                     <div v-for="(val, index) in tagslen" @click=" flag = index" :class="{ active: flag == index }"
                         :key="index">
                         {{ tags[index] }}
@@ -33,39 +33,53 @@
                 <slot name="right"></slot>
             </template>
         </NuxtLayout>
-        <el-drawer v-model="AppPinia.SearchDrawerFlag" :append-to-body="true"
-            :show-close="false" :with-header="false" direction="ltr" size="70%" destroy-on-close>
+        <el-drawer v-model="AppPinia.SearchDrawerFlag" :append-to-body="true" v-if="AppPinia.activeBlock != '十年'"
+            :show-close="false" :with-header="false" direction="ltr" size="70%">
             <el-scrollbar>
                 <div id="left-drawer">
                     <my-search-input></my-search-input>
-                    <KeepAlive>
+                    <KeepAlive :include='["MyMessage", "TagList"]'>
                         <Component :is="comps[flag]"></Component>
                     </KeepAlive>
                     <div class="option">
-                        <div v-for="(val, index) in tagslen" @click="flag = index"
-                            :class="{ active: flag == index }" :key="val">{{ tags[index] }}</div>
+                        <div v-for="(val, index) in tagslen" @click="flag = index" :class="{ active: flag == index }"
+                            :key="val">{{ tags[index] }}</div>
                     </div>
                 </div>
             </el-scrollbar>
+        </el-drawer>
+        <el-drawer v-if="AppPinia.activeBlock == '十年'" direction="ltr" v-model="AppPinia.SearchDrawerFlag"
+            :append-to-body="true" :show-close="false" :with-header="false" size="70%">
+            <my-search-input></my-search-input>
+            <div class="drawer-ltr-bk">
+                <div class="title">分类</div>
+                <el-scrollbar>
+                    <ul class="list">
+                        <li v-for="val in AppPinia.tags_list_years" @click="searchByTag(val)">
+                            <span>{{ val }} </span>
+                        </li>
+                        <li v-show="AppPinia.tags_list_years.length == 0">
+                            <span style="cursor: default;">暂无内容</span>
+                        </li>
+                    </ul>
+                </el-scrollbar>
+            </div>
         </el-drawer>
     </div>
 </template>
 
 <script setup lang="ts">
-import { useApp, useOneArticle } from '@/stores'
+import { useApp } from '@/stores'
 
-const OneArticle = useOneArticle()
 const AppPinia = useApp()
 
 const comps = shallowRef([
-    resolveComponent('MyMessage'), 
-    resolveComponent('TagList'), 
+    resolveComponent('MyMessage'),
+    resolveComponent('TagList'),
     resolveComponent('Directory')
 ])
 const tags = ref(['站点信息', '标签云', '目录'])
 const tagslen = ref(2)
-const taglist = toRef(OneArticle, 'tags_list_years')
-const $route = useRoute()
 let flag = ref(0)
 
 const directory = toRef(AppPinia, 'directory')
@@ -80,22 +94,17 @@ watch(directory, () => {
 }, { immediate: true })
 
 const nowPage = toRef(AppPinia, 'nowPage')
-const total = toRef(AppPinia, 'totalPages')
-const $router = useRouter()
-
-// const searchByTag = async (key: string) => {
-//     nowPage.value = 1
-//     const HttpRequestArticlesList = await useGetArticlesList(1, 5, key, 2) as ArticleListHttp<ArticleObj[]>
-//     ArticlesList = HttpRequestArticlesList.result as ArticleObj[]
-//     total.value = HttpRequestArticlesList.totalPages
-//     $router.push({
-//         path: '/years',
-//         query: {
-//             searchType: 'tag',
-//             searchKey: key
-//         }
-//     })
-// }
+const searchByTag = async (key: string) => {
+    nowPage.value = 1
+    navigateTo({
+        path: '/years',
+        query: {
+            searchType: 'tag',
+            searchKey: key
+        }
+    })
+    AppPinia.SearchDrawerFlag = false
+}
 </script>
 
 <style scoped lang="less">
@@ -171,5 +180,12 @@ const $router = useRouter()
         }
 
     }
+}
+
+
+.drawer-ltr-bk {
+    height: 500px;
+    position: relative;
+    z-index: 3;
 }
 </style>

@@ -9,8 +9,9 @@
 <script setup lang="ts">
 import { ElDivider } from 'element-plus';
 import { nanoid } from 'nanoid';
+import type { Comment } from '~/types/article';
 const props = defineProps<{
-    list: any[]
+    list: Comment[]
 }>()
 const showList = ref([]) as Ref<any>
 watch(()=>props.list, () => {

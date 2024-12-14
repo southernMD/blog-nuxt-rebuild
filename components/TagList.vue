@@ -15,19 +15,16 @@
 
 <script setup lang="ts">
 import _  from 'lodash'
-import { useOneArticle,useApp } from '~~/stores';
+import {useApp } from '~~/stores';
 import { ElTag, ElScrollbar } from 'element-plus';
-const OneArticle = useOneArticle()
 const AppPinia = useApp()
-const tags = toRef(OneArticle,'tags_list')
+const tags = toRef(AppPinia,'tags_list')
 const tagsCopy = ref(tags.value) as Ref<any>
 watch(tags,()=>{
     tagsCopy.value = tags
 },{deep:true})
 
 const tagsColor = ['success', 'warning', 'danger', '']
-const $router = useRouter()
-const $route = useRoute()
 let searchVal = ref('')
 const search = () => {
     tagsCopy.value = []
@@ -36,34 +33,24 @@ const search = () => {
     })
 }
 const debounceSearch = _.debounce(search, 300)
-const totalPages = toRef(AppPinia,'totalPages')
 const nowPage = toRef(AppPinia,'nowPage')
-const ArticlesList = toRef(AppPinia,'ArticlesList') as unknown as Ref<ArticleObj[]>
 
 const searchByTag = async(key:string)=>{
     nowPage.value = 1
+    AppPinia.SearchDrawerFlag = false
     if(key === '十年'){
-        $router.push('years')
+        navigateTo("/years")
     }else{
-        const HttpRequestArticlesList = await useGetArticlesList(1,5,key,2) as ArticleListHttp<ArticleObj[]>
-        ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
-        totalPages.value = HttpRequestArticlesList.totalPages
-        $router.push({
+        navigateTo({
             path:'/articles',
             query:{
                 searchType:'tag',
-                searchKey:key
+                searchKey:key,
             }
         })
     }
 }
 
-watch(nowPage, async () => {
-    if($route.query.searchType == 'tag'){
-        const HttpRequestArticlesList = await useGetArticlesList(nowPage.value, 5,String($route.query.searchKey) ,0) as ArticleListHttp<ArticleObj[]>
-        ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
-    }
-})
 </script>
 
 <style scoped lang="less">

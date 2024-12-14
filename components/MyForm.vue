@@ -29,10 +29,9 @@
 </template>
 
 <script setup lang="ts">
-import { useApp,useOneArticle } from '~~/stores';
+import { useApp } from '~~/stores';
 import { ElForm, ElFormItem, ElButton, ElInput, ElMessage,ElDivider, type FormInstance, type FormRules } from 'element-plus';
 const AppPinia = useApp()
-const OneArticle = useOneArticle()
 const inptsDetail = ref(['昵称', '邮箱', '网站'])
 const inptsDetailen = ref(['nickname', 'email', 'host']) as Ref<['nickname', 'email', 'host']>
 const placeholder = ref(['输入你的昵称', '不填写将收不到回复', '可选'])

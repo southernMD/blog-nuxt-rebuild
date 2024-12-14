@@ -1,6 +1,6 @@
 import {createHttp} from './api'
 import type { GetImageParams, ResOptions } from './types'
-
+import type { Comment } from '~/types/article'
 
 const Http = createHttp()
 
@@ -68,7 +68,7 @@ export const useGetArticlesList = async(nowPage:number,pageSize:number,password:
 }
 
 //留言板
-export const useGetArticleComment = async(id:number | string)=>{
+export const useGetArticleComment = async(id:number | string):Promise<ResOptions<Comment[]>>=>{
     return await Http.get(`/show/comment/${id}`)
 }
 
@@ -89,4 +89,25 @@ export const usePostComment = async(obj:any):Promise<ResOptions<any>>=>{
     }
     obj['location'] = locationStr
     return await Http.post(`/show/comment`,obj)
+}
+
+//about
+export const useAboutHtml = async()=>{
+    return await Http.get(`/show/about`)
+}
+
+export const useGetArticle = async(id:number | string):Promise<ResOptions<any> | undefined>=>{
+    try {
+        let result
+        if(import.meta.client){
+            result = await Http.getHeader(`/show/article/${id}`,{},{
+                'Authorization':'Bearer '+localStorage.getItem('token')
+            })
+        }else{
+            result = await Http.get(`/show/article/${id}`,{})
+        }
+        return result
+    } catch (error:any) {
+        return Promise.reject(error)
+    }
 }

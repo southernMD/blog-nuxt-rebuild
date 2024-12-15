@@ -2,6 +2,7 @@
 import path from 'path';
 import ElementPlus from 'unplugin-element-plus/vite'
 
+
 export default defineNuxtConfig({
   router: {
     options: {
@@ -10,9 +11,15 @@ export default defineNuxtConfig({
   },
   runtimeConfig:{
     public:{
-      // baseUrl: "https://www.southernapi.top",
-      baseUrl: "http://localhost:3102",
+      baseUrl: process.env.NUXT_PUBLIC_API_BASE,
     }
+  },
+  site: {
+    url: process.env.NUXT_WEB_URL,
+  },
+  sitemap: {
+    cacheMaxAgeSeconds: 6 * 60 * 60, //6小时缓存
+    autoLastmod: true // 用于爬虫抓取
   },
   modules: [
     '@pinia/nuxt',
@@ -20,6 +27,7 @@ export default defineNuxtConfig({
     '@pinia/nuxt',
     '@element-plus/nuxt',
     '@nuxt/image',
+    '@nuxtjs/seo'
   ],
   css: ['~/assets/base.css', 'element-plus/dist/index.css'],
   compatibilityDate: '2024-11-01',

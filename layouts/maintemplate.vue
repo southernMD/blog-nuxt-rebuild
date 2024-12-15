@@ -10,6 +10,7 @@
         <Transition name="title-way">
             <div class="title" v-show="scrollbarVal < 100">
                 <div class="title-main">
+                    <audio  :src="url" ref="audioRef" style="position: absolute;"></audio>
                     <div class="search" @click="AppPinia.changeSearchDrawerState(true)">
                         <i class="iconfont icon-search"></i>
                     </div>
@@ -25,6 +26,15 @@
                     </div>
                     <div class="menu" @click="drawerFlag = true">
                         <i class="iconfont icon-caidan"></i>
+                    </div>
+                    <div class="songlrc">
+                        <div class="two-line" v-show="!ifOneLine">
+                            <div class="lrc-one">{{ twoLineSongLrc }}</div>
+                            <div class="lrc-translate">{{ twoLineSongLrcTra }}</div>
+                        </div>
+                        <div class="one-line" :class="{'one-line-fontSmall':oneLineSongLrc.length >=25}" v-show="ifOneLine">
+                            <div class="lrc-two" >{{oneLineSongLrc}}</div>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -69,7 +79,7 @@
                     <div class="message">{{ AppPinia.theme == 'dark' ? '夜间模式' : '日间模式' }}</div>
                 </template>
             </Block>
-            <Block class="skin">
+            <Block class="skin" @block="handleChangeMusic">
             <!-- <Block class="skin" @block="handleChangeMusic"> -->
                 <template #icon>
                     <i v-show="music" class="iconfont icon-yinyue"></i>
@@ -120,14 +130,13 @@
 
 <script setup lang="ts">
 import { ref, type Ref } from 'vue'
-import { useRouter, useRoute } from 'vue-router';
-import { ElDrawer, ElButton, ElIcon, ElInput, ElScrollbar, ElMessageBox, ElMessage } from 'element-plus'
+import { ElDrawer, ElIcon, ElMessageBox, ElMessage } from 'element-plus'
 import { ArrowLeftBold, ArrowRightBold, Sunny, Moon, Hide, CaretLeft, CaretRight, Top } from '@element-plus/icons-vue'
 import { useApp } from '@/stores/index'
+import type { Song } from '~/types/song';
 const AppPinia = useApp()
 const navArr = ['首页', '文章', '留言板', '十年', '关于', '音乐'];
 const navicons = ['icon-shouye', 'icon-wenzhang', 'icon-liuyan', 'icon-zhiwu', 'icon-guanyu', 'icon-yinyue']
-let music = toRef(AppPinia, 'music')
 let drawerFlag = ref(false)
 let scrollbarVal = toRef(AppPinia, 'scrollbarVal')
 
@@ -209,7 +218,7 @@ const handleChangeSkin = () => {
 }
 
 const toTop = () =>{
-    AppPinia.scrollbarRef.scrollTo({
+    AppPinia.scrollbarRef!.scrollTo({
         top: 0,
         behavior: 'smooth'
     })
@@ -250,6 +259,147 @@ const admit = () => {
         }
     })
 }
+
+
+
+const MusicPinia = useMusic()
+const musicList = toRef(MusicPinia,'musicList')
+const url = ref('')
+const audioRef = ref<HTMLAudioElement>()
+const playIndex = toRef(MusicPinia,'playIndex')
+const ifOneLine = toRef(MusicPinia,'ifOneLine') //ref(true)
+let lrcArray:Ref<{time: number;lyric: any}[]> = toRef(MusicPinia,'lrcArray')
+let traArray:Ref<{time: number;lyric: any}[]> = toRef(MusicPinia,'traArray')
+let music = toRef(MusicPinia, 'music')
+const lrc_state = toRef(MusicPinia,'lrc_state')
+const next = toRef(MusicPinia,'next')
+const chagnePlay = toRef(MusicPinia,'chagnePlay')
+const { data: songList } = useAsyncData('songList', async () => {
+    if(import.meta.server){
+        const res = await useSongList()
+        musicList.value = res as Song[]
+        if(typeof musicList.value?.[playIndex.value] === "undefined")playIndex.value = 0
+        url.value = musicList.value?.[playIndex.value].songUrl
+        lrcCheck()
+        return res
+    }
+});
+
+const handleChangeMusic = ()=>{
+    if(music.value){
+        audioRef.value?.pause()
+    }
+    else {
+        audioRef.value?.play()
+    }
+    music.value = !music.value
+}
+const oneLineSongLrc = computed(()=>{
+    //只有滚动的单行歌曲才会有oneline的变化
+    if(lrc_state.value == 3){
+        return lrcArray.value.findLast((item,index)=>{
+            return item.time <= MusicPinia.songTime
+        })?.lyric
+    }else{
+        return `${musicList.value[playIndex.value].name}-${musicList.value[playIndex.value].ar}`
+    }
+})
+
+const twoLineSongLrc = computed(()=>{
+    if(lrc_state.value == 2){
+        return lrcArray.value.findLast((item,index)=>{
+            return item.time <= MusicPinia.songTime
+        })?.lyric
+    }else{
+        return ''
+    }
+})
+
+const twoLineSongLrcTra = computed(()=>{
+    if(lrc_state.value == 2){
+        return traArray.value.findLast((item,index)=>{
+            return item.time <= MusicPinia.songTime
+        })?.lyric
+    }else{
+        return ''
+    }
+})
+
+const lrcCheck = ()=>{
+    // 0 无歌词或无滚动 1 有歌词但没有滚动 2有歌词有滚动有翻译 3有歌词有滚动无翻译 
+    //歌词长度小于20,显示歌曲名与歌手
+    if(musicList.value[playIndex.value].lrc.length <= 5){
+        ifOneLine.value = true
+        lrc_state.value = 0
+    }//有歌词但没有滚动
+    else if(useBoolean(musicList.value[playIndex.value].ifScroll) == false){
+        ifOneLine.value = true
+        //@ts-ignore
+        lrcArray.value = parseLyricNoTimeLine(JSON.stringify(musicList.value[playIndex.value].lrc))
+        console.log(lrcArray.value);
+        lrc_state.value = 1
+    }
+    else{
+        //无歌词或无滚动
+        lrcArray.value = parseLyricLine(musicList.value[playIndex.value].lrc)
+        console.log(lrcArray.value);
+        
+        //有翻译
+        if(useBoolean(musicList.value[playIndex.value].ifTranslate)){
+            traArray.value = parseLyricLine(musicList.value[playIndex.value].translate)
+            ifOneLine.value = false
+            lrc_state.value = 2
+        }else{
+            ifOneLine.value = true
+            lrc_state.value = 3
+        }
+    }
+}
+
+onMounted(()=>{
+    if(music.value)audioRef.value?.play()
+    else audioRef.value?.pause()
+    nextTick(()=>{
+        MusicPinia.songDuration = audioRef.value!.duration * 1000;
+    })
+    audioRef.value!.addEventListener('ended',  () => {
+        lrcArray.value = []
+        traArray.value = []
+        playIndex.value++
+        if(playIndex.value >= musicList.value.length)playIndex.value = 0
+        url.value = musicList.value[playIndex.value].songUrl
+        lrcCheck()
+        nextTick(()=>{
+            music.value = true
+            audioRef.value?.play()
+        })
+        console.log('ended');
+    })
+    audioRef.value!.addEventListener('timeupdate',()=>{
+        //单位是s
+        MusicPinia.songTime = audioRef.value!.currentTime * 1000
+    })
+    audioRef.value!.addEventListener('loadedmetadata',  () => {
+        MusicPinia.songDuration = audioRef.value!.duration * 1000;
+        console.log("元数据加载完毕");
+    })
+})
+
+watch(chagnePlay,()=>{
+    handleChangeMusic()
+})
+watch(next,()=>{
+    playIndex.value++
+    if(playIndex.value >= musicList.value.length)playIndex.value = 0
+    lrcArray.value = []
+    traArray.value = []
+    url.value = musicList.value[playIndex.value].songUrl
+    lrcCheck()
+    nextTick(()=>{
+        music.value = true
+        audioRef.value?.play()
+    })
+})
 
 </script>
 
@@ -405,7 +555,53 @@ const admit = () => {
                     display: block;
                 }
             }
-
+            .songlrc{
+                position: absolute;
+                right: 0px;
+                // background-color: yellow;
+                width: 30%;
+                height: 100%;
+                display: flex;
+                align-items: center;
+                color: white;
+                .two-line{
+                    height: 100%;
+                    width: 100%;
+                    .lrc-one{
+                        height: 50%;
+                        line-height: 100%;
+                        align-items: center;
+                        justify-content: right;
+                        overflow: hidden;
+                        text-wrap: nowrap;
+                        display: flex;
+                        align-items: center;
+                        text-overflow: ellipsis;
+                    }
+                    .lrc-translate{
+                        height: 50%;
+                        line-height: 100%;
+                        overflow:hidden;
+                        text-overflow: ellipsis;
+                        justify-content: right;
+                        text-wrap: nowrap;
+                        display: flex;
+                        align-items: center;
+                    }
+                }
+                .one-line{
+                    font-size: 20px;
+                    text-wrap: nowrap;
+                    overflow: hidden;
+                    color: white;
+                    width: 100%;
+                    display: flex;
+                    justify-content: right;
+                }
+                .one-line-fontSmall{
+                    font-size: 16px;
+                }
+            }
             @media (max-width:1265px) {
                 .songlrc {
                     display: none;

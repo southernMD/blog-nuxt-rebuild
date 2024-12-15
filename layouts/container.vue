@@ -6,7 +6,7 @@
                 <slot name="left"></slot>
                 <slot name="option"></slot>
             </div>
-            <!-- <div :class="{'lrc-none':true,'lrc':scrollbarVal > 100}" >
+            <div :class="{'lrc-none':true,'lrc':scrollbarVal > 100}" >
                 <div class="two-line" v-show="!ifOneLine">
                     <div class="lrc-one">{{ twoLineSongLrc }}</div>
                     <div class="lrc-translate">{{ twoLineSongLrcTra }}</div>
@@ -14,7 +14,7 @@
                 <div class="one-line" v-show="ifOneLine">
                     <div class="lrc-two">{{oneLineSongLrc}}</div>
                 </div>
-            </div> -->
+            </div>
         </div>
         <div class="left left-none" :class="{ 'placeholder': scrollbarVal <= 100 }"></div>
         <div class="right">
@@ -25,35 +25,41 @@
 </template>
 
 <script setup lang="ts">
-import { useApp } from '@/stores'
-import type { Article } from '~/types/article';
+import { useApp,useMusic } from '@/stores'
 const AppPinia = useApp()
-const SearchDrawerFlag = toRef(AppPinia, 'SearchDrawerFlag')
+const MusicPinia = useMusic()
 let scrollbarVal = toRef(AppPinia, 'scrollbarVal')
-let searchVal = ref('')
-// const oneLineSongLrc = toRef(AppPinia,'oneLineSongLrc')
-// const twoLineSongLrc = toRef(AppPinia,'twoLineSongLrc')
-// const twoLineSongLrcTra = toRef(AppPinia,'twoLineSongLrcTra')
-// const ifOneLine = toRef(AppPinia,'ifOneLine') //ref(true)
+const ifOneLine = toRef(MusicPinia,'ifOneLine') //ref(true)
+const oneLineSongLrc = computed(()=>{
+    //只有滚动的单行歌曲才会有oneline的变化
+    if(MusicPinia.lrc_state == 3){
+        return MusicPinia.lrcArray.findLast((item,index)=>{
+            return item.time <= MusicPinia.songTime
+        })?.lyric
+    }else{
+        return `${MusicPinia.musicList[MusicPinia.playIndex].name}-${MusicPinia.musicList[MusicPinia.playIndex].ar}`
+    }
+})
 
-const ArticlesList  = toRef(AppPinia,'ArticlesListYear') as unknown as Ref<Article[]>
-const $route = useRoute()
-const total = toRef(AppPinia,'totalPages')
-const taglist = toRef(AppPinia,'tags_list_years')
+const twoLineSongLrc = computed(()=>{
+    if(MusicPinia.lrc_state == 2){
+        return MusicPinia.lrcArray.findLast((item,index)=>{
+            return item.time <= MusicPinia.songTime
+        })?.lyric
+    }else{
+        return ''
+    }
+})
 
-// const searchByTag = async(key:string)=>{
-//     nowPage.value = 1
-//     const HttpRequestArticlesList = await useGetArticlesList(1,5,key,2) as ArticleListHttp<Article[]>
-//     ArticlesList.value = HttpRequestArticlesList.result as ArticleObj[]
-//     total.value = HttpRequestArticlesList.totalPages
-//     $router.push({
-//         path:'/years',
-//         query:{
-//             searchType:'tag',
-//             searchKey:key
-//         }
-//     })
-// }
+const twoLineSongLrcTra = computed(()=>{
+    if(MusicPinia.lrc_state == 2){
+        return MusicPinia.traArray.findLast((item,index)=>{
+            return item.time <= MusicPinia.songTime
+        })?.lyric
+    }else{
+        return ''
+    }
+})
 </script>
 
 <style scoped lang="less">

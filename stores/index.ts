@@ -1,7 +1,8 @@
 import type { ScrollbarInstance } from "element-plus";
-import { defineStore } from "pinia";
-export const useApp = defineStore("app", {
-  state: () => {
+import { defineStore, type StoreDefinition } from "pinia";
+import type { Song } from "~/types/song";
+export const useApp: StoreDefinition<'app', AppState> = defineStore("app", {
+  state: (): AppState => {
     return {
       windowWidth: 1200,
       theme: 'light',
@@ -12,10 +13,6 @@ export const useApp = defineStore("app", {
       activeBlock: '首页',
       directory: -1,
       SearchDrawerFlag: false,
-      ArticlesList: null,
-      ArticlesListYear: null,
-      articleId: -1,
-      author: '',
       totalPages: 0,
       nowPage: 1,
       repaly: {
@@ -23,68 +20,61 @@ export const useApp = defineStore("app", {
         text: '',
         id: 0
       },
-      imgObj: {},
-      result: {},
-      yiyan: {},
-      navMessage: new Array(),
-      music: true,
-      musicList: <{
-        id: number
-        name: string
-        ar: string
-        al: string
-        songUrl: string
-        coverUrl: string
-        ifScroll: boolean
-        lrc: string
-        ifTranslate: boolean
-        translate: string
-        order: number
-      }[]>[],
-      oneLineSongLrc: '',
-      twoLineSongLrc: '',
-      twoLineSongLrcTra: '',
-      ifOneLine: true,
-      playIndex: 0,
-      lrcArray: <{ time: number; lyric: any }[]>[],
-      traArray: <{ time: number; lyric: any }[]>[],
-      songTime: 0,
-      songDuration: 0,
-      next: 0,
-      chagnePlay: true,
       scrollbarRef: null as ScrollbarInstance | null,
-      tags_list:[],
-      tags_list_years:[]
+      tags_list: [],
+      tags_list_years: []
     };
   },
   actions: {
-    changeSearchDrawerState(state:boolean = false) {
+    changeSearchDrawerState(state: boolean = false) {
       this.SearchDrawerFlag = state
     },
   },
   persist: [{
     pick: ['theme', 'optionDirectionFlag', 'hideFlag', 'orderChange',
-      'ArticlesList', 'ArticlesListYear', 'imgObj', 'result', 'yiyan', 'navMessage', 'music', 'playIndex',"nowPage"]
+      "nowPage"]
   }]
 });
 
-// export const useOneArticle = defineStore("oneArticle", {
-//   state: () => {
-//     return {
-//       ss: {
-//         id: 0,
-//         article: '',
-//         msg: {},
-//         Text: '',
-//         tags: [],
-//         list: [],
-//       },
-//     }
-//   },
-//   actions: {
 
-//   },
-//   persist: [{
-//     pick: ['ss'],
-//   }]
-// })
+interface AppState {
+  windowWidth: number;
+  theme: string;
+  optionDirectionFlag: boolean;
+  hideFlag: boolean;
+  orderChange: boolean;
+  scrollbarVal: number;
+  activeBlock: string;
+  directory: number;
+  SearchDrawerFlag: boolean;
+  totalPages: number;
+  nowPage: number;
+  repaly: {
+    user: string;
+    text: string;
+    id: number;
+  };
+
+  scrollbarRef: ScrollbarInstance | null;
+  tags_list: any[];
+  tags_list_years: any[];
+}
+
+export const useMusic = defineStore("music", {
+  state: () => ({
+    music: false,
+    playIndex: 0,
+    musicList: <Song[]>[],
+    ifOneLine: true,
+    lrcArray: <{ time: number; lyric: any }[]>[],
+    traArray: <{ time: number; lyric: any }[]>[],
+    songTime: 0,
+    songDuration: 0,
+    next: 0,
+    chagnePlay: true,
+    lrc_state: 0
+  }),
+  persist: [{
+    pick: ["music", "playIndex", "lrc_state"]
+  }]
+})

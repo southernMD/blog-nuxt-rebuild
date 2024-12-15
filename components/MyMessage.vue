@@ -5,10 +5,10 @@
             src="https://gravatar.loli.net/avatar/e6b6cb8333565fd6cff15e3c8ba8ade1?s=80" alt="">
         <h1 class="name">南山有壶酒</h1>
         <div class="yiyan">
-            <span>{{ AppPinia.yiyan }}</span>
+            <span>{{ yiyan }}</span>
         </div>
         <div class="nav-list">
-            <div class="nav" v-for="(val, index) in AppPinia.navMessage" :key="val">
+            <div class="nav" v-for="(val, index) in navMessage" :key="val">
                 <div class="nav-item">
                     <div class="title">{{ navTitle[index] }}</div>
                     <div class="number">{{ val }}</div>
@@ -37,28 +37,15 @@ import { useApp } from '~~/stores';
 const navTitle = ['文章', '分类', '标签']
 const AppPinia = useApp()
 const imageSrc = ref<string | null>(null);
-AppPinia.imgObj = await useGetImage({ restart: false });
-imageSrc.value = AppPinia.imgObj?.result?.[0];
+const yiyan = ref('')
+const navMessage = ref([]) as Ref<number[]>
+imageSrc.value = (await useGetImage({ restart: false })).result?.[0];
 const AppResult = (await useGetBaseMessage())!.result!;
-AppPinia.yiyan = await useGetYiYan() as string;
+yiyan.value = await useGetYiYan() as string;
 let { base_message, tags_list, tags_list_years } = AppResult as { base_message: { tags_number: number, gather_number: number, article_number: number }, tags_list: string[], tags_list_years: string[] };
-AppPinia.navMessage = [base_message.article_number, base_message.gather_number, base_message.tags_number];
+navMessage.value.push(...[base_message.article_number, base_message.gather_number, base_message.tags_number])
 AppPinia.tags_list = tags_list as any
 AppPinia.tags_list_years = tags_list_years as any
-// if(!flag.value){
-//     AppPinia.imgObj = await useGetImage()
-//     AppPinia.result = (await useGetBaseMessage())!.result!
-//     AppPinia.yiyan =  await useGetYiYan() as string
-//     // AppPinia.MessageFlag = false
-//     let {base_message,tags_list,tags_list_years} = AppPinia.result as {base_message:{tags_number:number,gather_number:number,article_number:number},tags_list:string[],tags_list_years:string[]}
-//     const { public: { VITE_PACK_ENV } } = useRuntimeConfig() // 3.0正式版环境变量要从useRuntimeConfig里的public拿
-//     const OneArticle = useOneArticle()
-//     OneArticle.tags_list = tags_list as any
-//     OneArticle.tags_list_years = tags_list_years as any
-//     navMessage.value = [base_message.article_number,base_message.gather_number,base_message.tags_number]
-//     flag.value = true
-// }
-
 </script>
 
 <style scoped lang="less">

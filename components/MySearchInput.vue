@@ -28,7 +28,7 @@ const goSearch = async() => {
         }
     }
     nowPage.value = 1
-    AppPinia.SearchDrawerFlag = false
+    AppPinia.changeSearchDrawerState(false)
     if($route.path.includes('years')){
         navigateTo({
             path:'/years',

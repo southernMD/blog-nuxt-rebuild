@@ -28,7 +28,7 @@ import type { ScrollbarInstance } from 'element-plus';
 const scrollbarRef = ref<ScrollbarInstance | null>(null)
 const AppPinia = useApp() 
 watch(()=>scrollbarRef,()=>{
-  AppPinia.scrollbarRef = scrollbarRef
+  AppPinia.scrollbarRef = unref(scrollbarRef)
 },{immediate:true,deep:true})
 
 const barScroll = (scrollObj: any) => {

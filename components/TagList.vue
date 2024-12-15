@@ -37,7 +37,7 @@ const nowPage = toRef(AppPinia,'nowPage')
 
 const searchByTag = async(key:string)=>{
     nowPage.value = 1
-    AppPinia.SearchDrawerFlag = false
+    AppPinia.changeSearchDrawerState(false)
     if(key === '十年'){
         navigateTo("/years")
     }else{

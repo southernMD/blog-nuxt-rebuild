@@ -50,7 +50,7 @@ watch(articlesData, (newData) => {
 }, { immediate: true });
 
 watch(nowPage, () => {
-  AppPinia.scrollbarRef.scrollTo({
+  AppPinia.scrollbarRef!.scrollTo({
     top: 0,
   })
 })

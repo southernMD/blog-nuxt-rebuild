@@ -1,6 +1,6 @@
 <template>
     <div class="block-gather" :class="{'move':showflag}">
-        <div class="message" ref="message" :class="{'message-way':orderChange,'show':showflag,'message-l':optionDirectionFlag}">
+        <div class="message" ref="message" :class="{'message-way':AppPinia.orderChange,'show':showflag,'message-l':optionDirectionFlag}">
             <slot name="message"></slot>
         </div>
         <div class="block" ref="block" @click="handleClick" @mouseover="showMessage" @mouseout="hideMessage" :class="{'bk-color':showflag}">
@@ -12,30 +12,27 @@
 
 <script setup lang="ts">
 import {useApp} from '@/stores'
-const $el = getCurrentInstance()
 const AppPinia = useApp()
-let orderChange = toRef(AppPinia,'orderChange')
 let optionDirectionFlag = toRef(AppPinia,'optionDirectionFlag')
 type pps = {
     height?: string
     width?: string
 }
 
-withDefaults(defineProps<pps>(), {
+const props = withDefaults(defineProps<pps>(), {
     height: '42px',
     width: '42px'
 })
-
+const block = ref() as Ref<HTMLElement>
+const message = ref() as Ref<HTMLElement>
 onMounted(() => {
-    let dom = $el?.refs.block as HTMLElement
-    let message = $el?.refs.message as HTMLElement
-    dom.style.width = $el?.props.width as string
-    dom.style.height = $el?.props.height as string
+    // let message = $el?.refs.message as HTMLElement
+    block.value!.style.width = props.width as string
+    block.value!.style.height = props.height as string
 })
 
 let showflag = ref(false)
 const showMessage = ()=>{
-    console.log('121231232142');
     showflag.value = true
 }
 const hideMessage = ()=>{

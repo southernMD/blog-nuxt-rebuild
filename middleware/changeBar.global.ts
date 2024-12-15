@@ -42,5 +42,5 @@ export default defineNuxtRouteMiddleware((to, from) => {
     }else if(!to.path.includes('articles')){
         AppPinia.directory = -1
     }
-    // AppPinia.SearchDrawerFlag = false
+    AppPinia.changeSearchDrawerState(false)
 })

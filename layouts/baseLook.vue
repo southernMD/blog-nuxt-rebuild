@@ -103,7 +103,8 @@ const searchByTag = async (key: string) => {
             searchKey: key
         }
     })
-    AppPinia.SearchDrawerFlag = false
+    AppPinia.changeSearchDrawerState(false)
+    
 }
 </script>
 

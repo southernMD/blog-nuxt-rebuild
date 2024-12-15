@@ -1,9 +1,9 @@
 import {createHttp} from './api'
 import type { GetImageParams, ResOptions } from './types'
 import type { Comment } from '~/types/article'
-
+import _ from 'lodash'
+import type { Song } from '~/types/song'
 const Http = createHttp()
-
 //左侧图片
 export const useGetImage = async({restart}:GetImageParams) => {
     try{
@@ -16,7 +16,7 @@ export const useGetImage = async({restart}:GetImageParams) => {
 
 //一言
 export const useGetYiYan = async()=>{
-    return "兄弟你好香"
+    return _.sample((await import('~/assets/yiyan.json')).default)
     // return await Http.get('https://v1.hitokoto.cn/?c=e&c=a&c=c&c=j&encode=text&max_length=15',{lazy:true})
 }
 
@@ -110,4 +110,25 @@ export const useGetArticle = async(id:number | string):Promise<ResOptions<any> |
     } catch (error:any) {
         return Promise.reject(error)
     }
+}
+
+
+export const useSongList = async():Promise< Song[] | []>=>{
+    try {
+        const result:ResOptions<any> = await Http.get(`/show/music`)
+        if(result.status == 200){
+            return result.result.sort((a:Song,b:Song)=>{
+                return a.order - b.order
+            })
+        }else{
+            return Promise.resolve([])
+        }
+
+    } catch (error) {
+        return Promise.resolve([])
+    }
+}
+
+export const usePostAdmit = async(password:string)=>{
+    return await Http.post(`/show/admit`,{admit:password})
 }

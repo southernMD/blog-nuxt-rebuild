@@ -38,4 +38,3 @@ interface Comment{
 interface ArticleListHttp<T> extends ResOptions<T>{
     totalPages:number
 }
-

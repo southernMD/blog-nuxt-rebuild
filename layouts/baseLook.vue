@@ -2,12 +2,12 @@
     <div style="height:100vh;">
         <NuxtLayout name="container">
             <template #left>
-                <div v-show="AppPinia.activeBlock != '十年'">
+                <div v-show="activeComp">
                     <KeepAlive :include='["MyMessage", "TagList"]'>
                         <Component :is="comps[flag]"></Component>
                     </KeepAlive>
                 </div>
-                <div v-show="AppPinia.activeBlock == '十年'">
+                <div v-show="!activeComp">
                     <div class="title">分类</div>
                     <el-scrollbar>
                         <ul class="list">
@@ -22,7 +22,7 @@
                 </div>
             </template>
             <template #option>
-                <div class="option" v-show="AppPinia.activeBlock != '十年'">
+                <div class="option" v-show="activeComp">
                     <div v-for="(val, index) in tagslen" @click=" flag = index" :class="{ active: flag == index }"
                         :key="index">
                         {{ tags[index] }}
@@ -33,7 +33,7 @@
                 <slot name="right"></slot>
             </template>
         </NuxtLayout>
-        <el-drawer v-model="AppPinia.SearchDrawerFlag" :append-to-body="true" v-if="AppPinia.activeBlock != '十年'"
+        <el-drawer v-model="AppPinia.SearchDrawerFlag" :append-to-body="true" v-if="!activeComp"
             :show-close="false" :with-header="false" direction="ltr" size="70%">
             <el-scrollbar>
                 <div id="left-drawer">
@@ -106,6 +106,10 @@ const searchByTag = async (key: string) => {
     AppPinia.changeSearchDrawerState(false)
     
 }
+
+const activeComp = computed(()=>{
+    return AppPinia.activeBlock != '十年' || AppPinia.activeBlock == '十年' && AppPinia.directory != -1
+})
 </script>
 
 <style scoped lang="less">

@@ -23,7 +23,7 @@ const fetch = (url: string, options?: any,lazy = false,restart = true): Promise<
       const value: ResOptions<any> = data.value as  ResOptions<any>
       console.log(value?.status,"api获取value");
       
-      if (String(value?.status).startsWith('2') || url.includes('http')) {
+      if (String(value?.status).startsWith('2') || url.includes('http') || String(value?.state).startsWith('2')) {
         // 这里处理错你自定义的错误，例如code !== 1
         resolve(value)
       } else {

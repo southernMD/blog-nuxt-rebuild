@@ -4,8 +4,8 @@
             <div class="top">
                 <div class="left rush">
                     <el-carousel trigger="click" height="300px" arrow="never" :interval="5000">
-                        <el-carousel-item v-for="i in 5">
-                            <NuxtImg :src="`/q${i}.webp`" format="webp"></NuxtImg>
+                        <el-carousel-item v-for="item in bannerList">
+                            <NuxtImg :src="item.imgUrl" format="webp"></NuxtImg>
                         </el-carousel-item>
                     </el-carousel>
                 </div>
@@ -17,14 +17,7 @@
                     </div>
                 </div>
             </div>
-            <div class="bottom">
-                本站接入gravatar头像系统，只要提前在gravatar上设置头像并回复时填写email就可以显示头像。<br>
-                一个可能没法成为程序员的人，个人介绍可以查看顶置文章。<br>
-                图一拍自2018年6月初中<br>
-                图二拍自2018年12月9日湘湖<br>
-                图三拍自2016年12月3日电影院《你的名字》<br>
-                图四拍自2023年4月15日第二十届icpc浙江省省赛<br>
-                图五拍自2018年6月17日
+            <div class="bottom" v-dompurify-html="defaultMsg">
             </div>
         </el-scrollbar>
     </div>
@@ -37,6 +30,16 @@ const goArticles = (id:number)=>{
         path:`/articles/${id}`
     })
 }
+const bannerList = ref()
+const defaultMsg = ref(``)
+try{
+    bannerList.value = (await useGetBanner()).result
+    defaultMsg.value = (await useGetIndexMsg()).result
+}catch(e){
+    bannerList.value = []
+
+}
+
 
 
 

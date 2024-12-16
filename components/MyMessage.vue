@@ -39,13 +39,29 @@ const AppPinia = useApp()
 const imageSrc = ref<string | null>(null);
 const yiyan = ref('')
 const navMessage = ref([]) as Ref<number[]>
-imageSrc.value = (await useGetImage({ restart: false })).result?.[0];
-const AppResult = (await useGetBaseMessage())!.result!;
-yiyan.value = await useGetYiYan() as string;
-let { base_message, tags_list, tags_list_years } = AppResult as { base_message: { tags_number: number, gather_number: number, article_number: number }, tags_list: string[], tags_list_years: string[] };
-navMessage.value.push(...[base_message.article_number, base_message.gather_number, base_message.tags_number])
-AppPinia.tags_list = tags_list as any
-AppPinia.tags_list_years = tags_list_years as any
+
+const { data: img } = await useAsyncData('img', async () => {
+    return $fetch(`${useRuntimeConfig().public.baseUrl}/show/img`)
+});
+watch(()=>img.value, (val:any) => {
+    imageSrc.value = val?.result?.[0];
+},{deep:true,immediate:true})
+
+const {data: baseMessage} = await useAsyncData('baseMessage', async () => {
+    return $fetch(`${useRuntimeConfig().public.baseUrl}/show/base`)
+});
+watch(()=>baseMessage.value, (val:any)=>{
+    const { base_message, tags_list, tags_list_years } = val.result!;
+    navMessage.value.push(...[base_message.article_number, base_message.gather_number, base_message.tags_number])
+    AppPinia.tags_list = tags_list as any
+    AppPinia.tags_list_years = tags_list_years as any
+},{deep:true,immediate:true})
+
+if(import.meta.server){
+    yiyan.value = await useGetYiYan() as string;
+}
+
+
 </script>
 
 <style scoped lang="less">

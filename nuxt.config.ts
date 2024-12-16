@@ -4,6 +4,11 @@ import ElementPlus from 'unplugin-element-plus/vite'
 
 
 export default defineNuxtConfig({
+  app: {
+    head: {
+      titleTemplate: '%s', // %s 表示页面的标题
+    },
+  },
   router: {
     options: {
       strict: true,

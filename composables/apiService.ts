@@ -41,11 +41,8 @@ export const useTopArticle = async()=>{
 }
 
 //基本信息
-export const useGetBaseMessage = async()=>{
-    let result = await Http.get(`/show/base`)
-        return new Promise<ResOptions<any>>((resolve, reject) => {
-        resolve(result)
-    })
+export const useGetBaseMessage = ()=>{
+    return Http.get(`/show/base`)
 }
 
 
@@ -131,4 +128,13 @@ export const useSongList = async():Promise< Song[] | []>=>{
 
 export const usePostAdmit = async(password:string)=>{
     return await Http.post(`/show/admit`,{admit:password})
+}
+
+//轮播图
+export const useGetBanner = async()=>{
+    return await Http.get('/show/carousel')
+}
+
+export const useGetIndexMsg = async()=>{
+    return await Http.get('/show/index_msg')
 }

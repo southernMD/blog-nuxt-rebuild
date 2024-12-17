@@ -1,6 +1,6 @@
 <template>
     <div class="MyMessage">
-        <NuxtImg v-if="imageSrc" format="webp" :src="imageSrc" height="200" width="300"></NuxtImg>
+        <NuxtImg format="webp" :src="imageSrc" height="200" width="300" alt=""></NuxtImg>
         <img class="header" draggable="false"
             src="https://gravatar.loli.net/avatar/e6b6cb8333565fd6cff15e3c8ba8ade1?s=80" alt="">
         <h1 class="name">南山有壶酒</h1>
@@ -36,15 +36,15 @@
 import { useApp } from '~~/stores';
 const navTitle = ['文章', '分类', '标签']
 const AppPinia = useApp()
-const imageSrc = ref<string | null>(null);
+const imageSrc = ref<string>('');
 const yiyan = ref('')
 const navMessage = ref([]) as Ref<number[]>
-
+imageSrc.value = blankImg(300,200)
 const { data: img } = await useAsyncData('img', async () => {
     return $fetch(`${useRuntimeConfig().public.baseUrl}/show/img`)
 });
 watch(()=>img.value, (val:any) => {
-    imageSrc.value = val?.result?.[0];
+    if(val?.result?.[0])imageSrc.value = val?.result?.[0];
 },{deep:true,immediate:true})
 
 const {data: baseMessage} = await useAsyncData('baseMessage', async () => {

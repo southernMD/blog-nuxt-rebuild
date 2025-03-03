@@ -21,10 +21,30 @@ export default defineNuxtConfig({
   },
   site: {
     url: process.env.NUXT_WEB_URL,
+    name: 'southernMD',
+    description: '南山有壶酒',
+    defaultLocale: 'zh-cn',
+    // exclude: ['/admin/_components/**'], // 过滤不需要的 url
+    cacheMaxAgeSeconds: 24 * 3600, // 缓存时间一天
+    autoLastmod: true, // 自动检测每个 URL 的 lastmod 日期
   },
   sitemap: {
+    sources: ["/api/sitemap"],
     cacheMaxAgeSeconds: 6 * 60 * 60, //6小时缓存
     autoLastmod: true // 用于爬虫抓取
+  },
+  nitro: {
+    prerender: {
+      routes: ["/robots.txt"]
+    }
+  },
+  robots: {
+    groups: [
+      {
+        userAgent: ['*'],
+        disallow: ['']
+      }
+    ]
   },
   modules: [
     '@pinia/nuxt',

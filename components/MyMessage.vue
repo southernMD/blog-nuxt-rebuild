@@ -7,8 +7,8 @@
         <div class="yiyan">
             <span>{{ yiyan }}</span>
         </div>
-        <div class="nav-list">
-            <div class="nav" v-for="(val, index) in navMessage" :key="val">
+        <div class="nav-list" key="1">
+            <div class="nav" v-for="(val, index) in navMessage">
                 <div class="nav-item">
                     <div class="title">{{ navTitle[index] }}</div>
                     <div class="number">{{ val }}</div>
@@ -52,6 +52,7 @@ const {data: baseMessage} = await useAsyncData('baseMessage', async () => {
 });
 watch(()=>baseMessage.value, (val:any)=>{
     const { base_message, tags_list, tags_list_years } = val.result!;
+    navMessage.value.length = 0
     navMessage.value.push(...[base_message.article_number, base_message.gather_number, base_message.tags_number])
     AppPinia.tags_list = tags_list as any
     AppPinia.tags_list_years = tags_list_years as any

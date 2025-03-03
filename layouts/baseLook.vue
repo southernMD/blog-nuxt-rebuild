@@ -33,7 +33,7 @@
                 <slot name="right"></slot>
             </template>
         </NuxtLayout>
-        <el-drawer v-model="AppPinia.SearchDrawerFlag" :append-to-body="true" v-if="!activeComp"
+        <el-drawer v-model="AppPinia.SearchDrawerFlag" :append-to-body="true" v-if="activeComp"
             :show-close="false" :with-header="false" direction="ltr" size="70%">
             <el-scrollbar>
                 <div id="left-drawer">

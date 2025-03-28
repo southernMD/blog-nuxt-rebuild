@@ -54,7 +54,7 @@ export default defineNuxtConfig({
     '@nuxt/image',
     '@nuxtjs/seo'
   ],
-  css: ['~/assets/base.css', 'element-plus/dist/index.css'],
+  css: ['~/assets/base.css'],
   compatibilityDate: '2024-11-01',
   devtools: { enabled: true },
   vite: {
